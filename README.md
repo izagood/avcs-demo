@@ -59,10 +59,12 @@ Run it twice: the sandbox is rebuilt from scratch each time, so the outcome is r
 
 ## What it costs an agent in tokens
 
-The table above is about correctness. This one is about the bill. When an agent's push
-races with someone else's, git makes it **recover**: read the rejection, rebase, and — if
-the edits collided — pull the entire conflicted file into context and write the entire file
-back. AVCS either absorbs the race or hands back an object describing it.
+The table above is about correctness. This one is about the bill — and the bill is
+**37–99% smaller**, measured. When an agent's push races with someone else's, git makes it
+**recover**: read the rejection, rebase, and — if the edits collided — pull the entire
+conflicted file into context and write the entire file back. AVCS either absorbs the race or
+hands back a small object describing it. On a 30 KB module that is **18,922 tokens versus
+279 — a 99% saving on the single most common interruption in a team's day.**
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/rebase-token-cost-dark.svg">
