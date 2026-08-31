@@ -6,8 +6,10 @@
 // human's local key, so an agent cannot forge it, and the rationale stays in history.
 //
 // The MCP tool for this is `avcs.decision.record` (it additionally requires the owner to
-// confirm via elicitation). The 0.4x CLI has no `decide` command yet, so this script does
-// the same thing through the public library API.
+// confirm via elicitation). A CLI verb now exists too —
+//   avcs decide <conflict-id> --choose <op-oid> --reason "…"
+// (izagood/avcs#129, merged) — but it is not in a published release yet, and this demo runs
+// against the release on npm. Once it ships, this script collapses into that one command.
 //
 // usage: node tools/resolve-conflict.mjs <repo-dir> <human-actor-id> <substring-of-chosen-purpose>
 
