@@ -1,0 +1,558 @@
+{
+  "bytesPerToken": 4,
+  "contextKb": 40,
+  "results": [
+    {
+      "size": "small (0.7 KB)",
+      "bytes": 394,
+      "scenario": "disjoint edits",
+      "git": {
+        "read": 596,
+        "write": 0,
+        "trips": 3,
+        "steps": [
+          {
+            "name": "git push (rejected)",
+            "bytes": 596,
+            "kind": "output"
+          },
+          {
+            "name": "git pull --rebase",
+            "bytes": 0,
+            "kind": "output"
+          },
+          {
+            "name": "git push (retry)",
+            "bytes": 0,
+            "kind": "output"
+          }
+        ]
+      },
+      "avcs": {
+        "read": 79,
+        "write": 0,
+        "trips": 1,
+        "steps": [
+          {
+            "name": "avcs land",
+            "bytes": 79,
+            "kind": "output"
+          }
+        ]
+      }
+    },
+    {
+      "size": "small (0.7 KB)",
+      "bytes": 394,
+      "scenario": "same-line collision",
+      "git": {
+        "read": 1920,
+        "write": 403,
+        "trips": 6,
+        "steps": [
+          {
+            "name": "git push (rejected)",
+            "bytes": 596,
+            "kind": "output"
+          },
+          {
+            "name": "git pull --rebase",
+            "bytes": 726,
+            "kind": "output"
+          },
+          {
+            "name": "read conflicted file (whole file + markers)",
+            "bytes": 514,
+            "kind": "output"
+          },
+          {
+            "name": "write resolved file (whole file)",
+            "bytes": 403,
+            "kind": "write"
+          },
+          {
+            "name": "git add + rebase --continue",
+            "bytes": 84,
+            "kind": "output"
+          },
+          {
+            "name": "git push (retry)",
+            "bytes": 0,
+            "kind": "output"
+          }
+        ]
+      },
+      "avcs": {
+        "read": 956,
+        "write": 210,
+        "trips": 4,
+        "steps": [
+          {
+            "name": "avcs land",
+            "bytes": 412,
+            "kind": "output"
+          },
+          {
+            "name": "avcs conflicts (the packet)",
+            "bytes": 465,
+            "kind": "output"
+          },
+          {
+            "name": "write recommendation for a human",
+            "bytes": 210,
+            "kind": "write"
+          },
+          {
+            "name": "avcs land (after decision)",
+            "bytes": 79,
+            "kind": "output"
+          }
+        ]
+      }
+    },
+    {
+      "size": "small (0.7 KB)",
+      "bytes": 394,
+      "scenario": "open PR, base moved",
+      "git": {
+        "read": 1382,
+        "write": 403,
+        "trips": 7,
+        "rounds": 1,
+        "steps": [
+          {
+            "name": "git fetch origin",
+            "bytes": 0,
+            "kind": "output"
+          },
+          {
+            "name": "git rebase origin/main",
+            "bytes": 566,
+            "kind": "output"
+          },
+          {
+            "name": "read conflicted file (round 1)",
+            "bytes": 585,
+            "kind": "output"
+          },
+          {
+            "name": "write resolved file (round 1)",
+            "bytes": 403,
+            "kind": "write"
+          },
+          {
+            "name": "git rebase --continue (round 1)",
+            "bytes": 96,
+            "kind": "output"
+          },
+          {
+            "name": "git push --force-with-lease",
+            "bytes": 0,
+            "kind": "output"
+          },
+          {
+            "name": "re-read CI result after force-push",
+            "bytes": 135,
+            "kind": "output"
+          }
+        ]
+      },
+      "avcs": {
+        "read": 989,
+        "write": 125,
+        "trips": 4,
+        "rounds": 1,
+        "steps": [
+          {
+            "name": "avcs land",
+            "bytes": 412,
+            "kind": "output"
+          },
+          {
+            "name": "avcs conflicts (round 1)",
+            "bytes": 498,
+            "kind": "output"
+          },
+          {
+            "name": "write recommendation for a human (round 1)",
+            "bytes": 125,
+            "kind": "write"
+          },
+          {
+            "name": "avcs land (round 1, after decision)",
+            "bytes": 79,
+            "kind": "output"
+          }
+        ]
+      }
+    },
+    {
+      "size": "typical (8 KB)",
+      "bytes": 10000,
+      "scenario": "disjoint edits",
+      "git": {
+        "read": 596,
+        "write": 0,
+        "trips": 3,
+        "steps": [
+          {
+            "name": "git push (rejected)",
+            "bytes": 596,
+            "kind": "output"
+          },
+          {
+            "name": "git pull --rebase",
+            "bytes": 0,
+            "kind": "output"
+          },
+          {
+            "name": "git push (retry)",
+            "bytes": 0,
+            "kind": "output"
+          }
+        ]
+      },
+      "avcs": {
+        "read": 79,
+        "write": 0,
+        "trips": 1,
+        "steps": [
+          {
+            "name": "avcs land",
+            "bytes": 79,
+            "kind": "output"
+          }
+        ]
+      }
+    },
+    {
+      "size": "typical (8 KB)",
+      "bytes": 10000,
+      "scenario": "same-line collision",
+      "git": {
+        "read": 11526,
+        "write": 10009,
+        "trips": 6,
+        "steps": [
+          {
+            "name": "git push (rejected)",
+            "bytes": 596,
+            "kind": "output"
+          },
+          {
+            "name": "git pull --rebase",
+            "bytes": 726,
+            "kind": "output"
+          },
+          {
+            "name": "read conflicted file (whole file + markers)",
+            "bytes": 10120,
+            "kind": "output"
+          },
+          {
+            "name": "write resolved file (whole file)",
+            "bytes": 10009,
+            "kind": "write"
+          },
+          {
+            "name": "git add + rebase --continue",
+            "bytes": 84,
+            "kind": "output"
+          },
+          {
+            "name": "git push (retry)",
+            "bytes": 0,
+            "kind": "output"
+          }
+        ]
+      },
+      "avcs": {
+        "read": 956,
+        "write": 210,
+        "trips": 4,
+        "steps": [
+          {
+            "name": "avcs land",
+            "bytes": 412,
+            "kind": "output"
+          },
+          {
+            "name": "avcs conflicts (the packet)",
+            "bytes": 465,
+            "kind": "output"
+          },
+          {
+            "name": "write recommendation for a human",
+            "bytes": 210,
+            "kind": "write"
+          },
+          {
+            "name": "avcs land (after decision)",
+            "bytes": 79,
+            "kind": "output"
+          }
+        ]
+      }
+    },
+    {
+      "size": "typical (8 KB)",
+      "bytes": 10000,
+      "scenario": "open PR, base moved",
+      "git": {
+        "read": 10988,
+        "write": 10009,
+        "trips": 7,
+        "rounds": 1,
+        "steps": [
+          {
+            "name": "git fetch origin",
+            "bytes": 0,
+            "kind": "output"
+          },
+          {
+            "name": "git rebase origin/main",
+            "bytes": 566,
+            "kind": "output"
+          },
+          {
+            "name": "read conflicted file (round 1)",
+            "bytes": 10191,
+            "kind": "output"
+          },
+          {
+            "name": "write resolved file (round 1)",
+            "bytes": 10009,
+            "kind": "write"
+          },
+          {
+            "name": "git rebase --continue (round 1)",
+            "bytes": 96,
+            "kind": "output"
+          },
+          {
+            "name": "git push --force-with-lease",
+            "bytes": 0,
+            "kind": "output"
+          },
+          {
+            "name": "re-read CI result after force-push",
+            "bytes": 135,
+            "kind": "output"
+          }
+        ]
+      },
+      "avcs": {
+        "read": 989,
+        "write": 125,
+        "trips": 4,
+        "rounds": 1,
+        "steps": [
+          {
+            "name": "avcs land",
+            "bytes": 412,
+            "kind": "output"
+          },
+          {
+            "name": "avcs conflicts (round 1)",
+            "bytes": 498,
+            "kind": "output"
+          },
+          {
+            "name": "write recommendation for a human (round 1)",
+            "bytes": 125,
+            "kind": "write"
+          },
+          {
+            "name": "avcs land (round 1, after decision)",
+            "bytes": 79,
+            "kind": "output"
+          }
+        ]
+      }
+    },
+    {
+      "size": "large (30 KB)",
+      "bytes": 37346,
+      "scenario": "disjoint edits",
+      "git": {
+        "read": 596,
+        "write": 0,
+        "trips": 3,
+        "steps": [
+          {
+            "name": "git push (rejected)",
+            "bytes": 596,
+            "kind": "output"
+          },
+          {
+            "name": "git pull --rebase",
+            "bytes": 0,
+            "kind": "output"
+          },
+          {
+            "name": "git push (retry)",
+            "bytes": 0,
+            "kind": "output"
+          }
+        ]
+      },
+      "avcs": {
+        "read": 79,
+        "write": 0,
+        "trips": 1,
+        "steps": [
+          {
+            "name": "avcs land",
+            "bytes": 79,
+            "kind": "output"
+          }
+        ]
+      }
+    },
+    {
+      "size": "large (30 KB)",
+      "bytes": 37346,
+      "scenario": "same-line collision",
+      "git": {
+        "read": 38872,
+        "write": 37355,
+        "trips": 6,
+        "steps": [
+          {
+            "name": "git push (rejected)",
+            "bytes": 596,
+            "kind": "output"
+          },
+          {
+            "name": "git pull --rebase",
+            "bytes": 726,
+            "kind": "output"
+          },
+          {
+            "name": "read conflicted file (whole file + markers)",
+            "bytes": 37466,
+            "kind": "output"
+          },
+          {
+            "name": "write resolved file (whole file)",
+            "bytes": 37355,
+            "kind": "write"
+          },
+          {
+            "name": "git add + rebase --continue",
+            "bytes": 84,
+            "kind": "output"
+          },
+          {
+            "name": "git push (retry)",
+            "bytes": 0,
+            "kind": "output"
+          }
+        ]
+      },
+      "avcs": {
+        "read": 956,
+        "write": 210,
+        "trips": 4,
+        "steps": [
+          {
+            "name": "avcs land",
+            "bytes": 412,
+            "kind": "output"
+          },
+          {
+            "name": "avcs conflicts (the packet)",
+            "bytes": 465,
+            "kind": "output"
+          },
+          {
+            "name": "write recommendation for a human",
+            "bytes": 210,
+            "kind": "write"
+          },
+          {
+            "name": "avcs land (after decision)",
+            "bytes": 79,
+            "kind": "output"
+          }
+        ]
+      }
+    },
+    {
+      "size": "large (30 KB)",
+      "bytes": 37346,
+      "scenario": "open PR, base moved",
+      "git": {
+        "read": 38334,
+        "write": 37355,
+        "trips": 7,
+        "rounds": 1,
+        "steps": [
+          {
+            "name": "git fetch origin",
+            "bytes": 0,
+            "kind": "output"
+          },
+          {
+            "name": "git rebase origin/main",
+            "bytes": 566,
+            "kind": "output"
+          },
+          {
+            "name": "read conflicted file (round 1)",
+            "bytes": 37537,
+            "kind": "output"
+          },
+          {
+            "name": "write resolved file (round 1)",
+            "bytes": 37355,
+            "kind": "write"
+          },
+          {
+            "name": "git rebase --continue (round 1)",
+            "bytes": 96,
+            "kind": "output"
+          },
+          {
+            "name": "git push --force-with-lease",
+            "bytes": 0,
+            "kind": "output"
+          },
+          {
+            "name": "re-read CI result after force-push",
+            "bytes": 135,
+            "kind": "output"
+          }
+        ]
+      },
+      "avcs": {
+        "read": 989,
+        "write": 125,
+        "trips": 4,
+        "rounds": 1,
+        "steps": [
+          {
+            "name": "avcs land",
+            "bytes": 412,
+            "kind": "output"
+          },
+          {
+            "name": "avcs conflicts (round 1)",
+            "bytes": 498,
+            "kind": "output"
+          },
+          {
+            "name": "write recommendation for a human (round 1)",
+            "bytes": 125,
+            "kind": "write"
+          },
+          {
+            "name": "avcs land (round 1, after decision)",
+            "bytes": 79,
+            "kind": "output"
+          }
+        ]
+      }
+    }
+  ]
+}

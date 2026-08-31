@@ -64,6 +64,11 @@ races with someone else's, git makes it **recover**: read the rejection, rebase,
 the edits collided — pull the entire conflicted file into context and write the entire file
 back. AVCS either absorbs the race or hands back an object describing it.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/rebase-token-cost-dark.svg">
+  <img alt="Agent tokens to land a change after another PR merged first: git costs 446, 5,249 and 18,922 tokens on 0.7 KB, 8 KB and 30 KB files, while AVCS stays flat at 279" src="docs/rebase-token-cost-light.svg" width="820">
+</picture>
+
 `node tools/token-cost.mjs` measures this by **running both systems for real** and counting
 the bytes each forces the agent to read and write, plus the round trips it takes. Measured
 on this machine, at 4 bytes/token:
@@ -151,6 +156,7 @@ Act 3 looks like when an *agent* hits it — including why the agent cannot reso
 | `src/todo.js`, `src/format.js` | The example project: a tiny working todo module |
 | `test/todo.test.js` | Its tests (`npm test`) — the kind of evidence AVCS gates merges on |
 | `tools/token-cost.mjs` | Runs both git and AVCS for real and measures the agent tokens each costs |
+| `tools/make-chart.mjs` | Draws the chart above **from** `docs/measurements.json`, so picture and numbers cannot drift |
 | `agent-session.md` | The same workflow as an MCP agent session transcript |
 | `sandbox/` | Created by `demo.sh`, git-ignored, safe to delete |
 
