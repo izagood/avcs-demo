@@ -2,14 +2,14 @@
   "name": "avcs-demo",
   "version": "0.1.0",
   "private": true,
-  "description": "Runnable demo: two agents edit the same file concurrently under AVCS — one lands as an auto-merge, one becomes a first-class conflict decision.",
+  "description": "Runnable demo: two agents edit the same file concurrently under AVCS \u2014 one lands as an auto-merge, one becomes a first-class conflict decision.",
   "type": "module",
   "scripts": {
     "test": "node --test test/*.test.js",
     "demo": "./demo.sh"
   },
   "devDependencies": {
-    "@izagood/avcs": ">=0.40.0 <0.42.0"
+    "@izagood/avcs": ">=0.42.0 <0.43.0"
   },
   "engines": {
     "node": ">=22.6"

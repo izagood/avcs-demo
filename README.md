@@ -51,8 +51,8 @@ The log shows the two operations as concurrent siblings sharing one sequence num
 same `throw new Error(...)` line differently. Alice lands; bob's land is refused with a
 **conflict packet** (this is L2 in AVCS's conflict grading — overlapping line regions).
 `avcs conflicts` shows the conflict as an object listing both operations. A human records a
-signed decision choosing bob's wording (`tools/resolve-conflict.mjs`, using the same library
-API the MCP tool `avcs.decision.record` uses), bob's land goes through, and `avcs show
+signed decision choosing bob's wording (`avcs decide <conflict-id> --choose <op-oid>`, the
+CLI counterpart of the MCP tool `avcs.decision.record`), bob's land goes through, and `avcs show
 <decision>` prints the ed25519-signed decision — chosen op, rejected op, and the reason.
 
 Run it twice: the sandbox is rebuilt from scratch each time, so the outcome is reproducible.
@@ -73,20 +73,34 @@ on this machine, at 4 bytes/token:
 | 0.7 KB | disjoint edits | 149 tok | 20 tok | **87%** | 3 | 1 |
 | 8 KB | disjoint edits | 149 tok | 20 tok | **87%** | 3 | 1 |
 | 30 KB | disjoint edits | 149 tok | 20 tok | **87%** | 3 | 1 |
-| 0.7 KB | same-line collision | 581 tok | 260 tok | **55%** | 6 | 4 |
-| 8 KB | same-line collision | 5,384 tok | 260 tok | **95%** | 6 | 4 |
-| 30 KB | same-line collision | 19,057 tok | 260 tok | **99%** | 6 | 4 |
+| 0.7 KB | same-line collision | 581 tok | 292 tok | **50%** | 6 | 4 |
+| 8 KB | same-line collision | 5,384 tok | 292 tok | **95%** | 6 | 4 |
+| 30 KB | same-line collision | 19,057 tok | 292 tok | **98%** | 6 | 4 |
+| 0.7 KB | open PR, base moved | 446 tok | 279 tok | **37%** | 7 | 4 |
+| 8 KB | open PR, base moved | 5,249 tok | 279 tok | **95%** | 7 | 4 |
+| 30 KB | open PR, base moved | 18,922 tok | 279 tok | **99%** | 7 | 4 |
+
+**"open PR, base moved" is the one that happens to you every day.** Your branch has been
+open a while; someone else's PR merges first; now yours must be rebased onto the moved base
+and **force-pushed**, which restarts CI on the PR. That is the most expensive row in git —
+7 round trips, and the whole file read and rewritten once per rebase round the replay
+stops at. AVCS has no branch to rewrite and nothing to force-push: bob's three operations
+are already history, and `land` submits them to the hub, which re-reduces the moved frontier
+on his behalf. **This row is one cycle. It repeats every time another PR merges ahead of
+yours** — three merges while your PR sits means three rebases in git, and nothing extra in
+AVCS.
 
 **The shape matters more than any single number.** git's recovery cost grows with the size
 of the *file*, because a conflict is bytes inside it — the agent reads 30 KB and writes 30 KB
-to change one line. AVCS's cost is flat at 260 tokens across every file size, because the
+to change one line. AVCS's cost is flat at ~280 tokens across every file size, because the
 conflict is an object naming the two contending operations. Put a real 30 KB module under
-two agents and git charges you ~73× more tokens for the same landing.
+two agents and git charges you **65–68× more tokens** for the same landing.
 
 **Round trips are the larger bill.** Every extra turn re-sends the live conversation, so a
 turn costs roughly the context size, not the size of the output that caused it. At 40 KB of
 context, git's 3 trips vs AVCS's 1 in the common disjoint case is **30,869 vs 10,260 tokens
-— 67% saved on the case that happens most often.** Run
+— 67% saved on the case that happens most often**, and the open-PR rebase on a 30 KB file is
+**90,602 vs 41,239 — 54% saved**. Run
 `node tools/token-cost.mjs --context-kb 120` to price it against your own context budget.
 
 <details>
@@ -103,6 +117,10 @@ collision alone; in AVCS it may not — it surfaces the options and a human sign
 decision. The tokens a wrong silent git resolution costs later are not counted here either.
 The human's `decide` command is excluded from AVCS's total, because counting a human
 keystroke as an agent token would flatter AVCS.
+
+The open-PR row counts **one** rebase cycle, and the harness counts the conflict rounds git
+actually reported (shown as `rounds g/a` in the output) rather than assuming a number. Real
+branches often hit more, and each merged PR ahead of yours starts another cycle.
 
 The harness refuses to report a number unless both systems actually reached a landed state
 with the change intact — a refused command is cheap too, and measuring failure as
@@ -132,7 +150,6 @@ Act 3 looks like when an *agent* hits it — including why the agent cannot reso
 | `demo.sh` | The whole demo — annotated, idempotent, runs against the published release |
 | `src/todo.js`, `src/format.js` | The example project: a tiny working todo module |
 | `test/todo.test.js` | Its tests (`npm test`) — the kind of evidence AVCS gates merges on |
-| `tools/resolve-conflict.mjs` | Records a signed human decision via the `@izagood/avcs` library API |
 | `tools/token-cost.mjs` | Runs both git and AVCS for real and measures the agent tokens each costs |
 | `agent-session.md` | The same workflow as an MCP agent session transcript |
 | `sandbox/` | Created by `demo.sh`, git-ignored, safe to delete |

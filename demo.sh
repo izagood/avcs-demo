@@ -50,7 +50,10 @@ EOF
 # ── act 1: solo basics ───────────────────────────────────────────────────────
 say "== act 1: a repo on your disk is a complete VCS (no server, no git) =="
 cd "$SANDBOX/project"
-avcs init .
+# --no-hooks matters here: the sandbox sits inside THIS git repo, and installing the
+# git-bridge hooks would put them on the enclosing repo — every later `git commit` in
+# your clone would then look for an AVCS repo that lives one directory down.
+avcs init . --no-hooks
 avcs key provision human:dev
 avcs import . -m "initial import"
 
@@ -139,9 +142,11 @@ note "clean; the conflict is an OBJECT that lists both operations and waits for 
 (cd bob && avcs conflicts)
 
 note "a human resolves it by recording a SIGNED decision (chosen op + rationale)."
-note "(agents use the MCP tool avcs.decision.record; here we call the library API)"
-DECISION_OUT="$(node "$ROOT/tools/resolve-conflict.mjs" "$SANDBOX/bob" human:bob "reword")"
-printf '%s\n' "$DECISION_OUT"
+note "(agents use the MCP tool avcs.decision.record; humans use this verb)"
+CONFLICT_ID="$( (cd bob && "$AVCS" conflicts) | grep -o 'conflict_[a-f0-9]*' | head -1)"
+BOB_OP="$( (cd bob && "$AVCS" conflicts) | grep -B1 'human:bob' | grep -o 'operation_[a-f0-9]*' | head -1)"
+DECISION_OUT="$( (cd bob && avcs decide "$CONFLICT_ID" --choose "$BOB_OP" \
+                    --reason "bob reviewed both wordings and kept his" --as human:bob) )"
 DECISION_OID="$(printf '%s' "$DECISION_OUT" | grep -o 'decision_[a-f0-9]*' | head -1)"
 
 note "with the decision in history, the same land now goes through:"
