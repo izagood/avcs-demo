@@ -21,12 +21,16 @@ const rows = data.results
     avcs: tok(r.avcs.read + r.avcs.write),
     gitTrips: r.git.trips,
     avcsTrips: r.avcs.trips,
+    saved: Math.round((1 - tok(r.avcs.read + r.avcs.write) / tok(r.git.read + r.git.write)) * 100),
   }));
 if (rows.length !== 3) throw new Error(`expected 3 file sizes, got ${rows.length}`);
 
+// No surface colour: the chart is drawn straight onto the README. A card that reads as a
+// considered figure on GitHub's white page reads as a bright rectangle punched into the
+// text on #0d1117, so the ground is left to the page and only the ink is themed.
 const THEMES = {
-  light: { surface: "#fcfcfb", ink: "#0b0b0b", ink2: "#52514e", grid: "#e6e5e1", git: "#eb6834", avcs: "#2a78d6" },
-  dark:  { surface: "#1a1a19", ink: "#ffffff", ink2: "#c3c2b7", grid: "#33322f", git: "#d95926", avcs: "#3987e5" },
+  light: { ink: "#0b0b0b", ink2: "#52514e", grid: "#e6e5e1", git: "#eb6834", avcs: "#2a78d6" },
+  dark:  { ink: "#ffffff", ink2: "#c3c2b7", grid: "#33322f", git: "#d95926", avcs: "#3987e5" },
 };
 
 const W = 820, H = 404;
@@ -53,8 +57,8 @@ function svg(theme) {
   .val { font-size: 12px; font-weight: 600; fill: ${c.ink}; }
   .lg { font-size: 12.5px; fill: ${c.ink}; }
   .note { font-size: 11.5px; fill: ${c.ink2}; }
+  .drop { font-size: 26px; font-weight: 700; fill: ${c.avcs}; letter-spacing: -0.5px; }
 </style>
-<rect width="${W}" height="${H}" rx="10" fill="${c.surface}"/>
 <g class="t">
 <text class="title" x="${PAD.l - 36}" y="34">Someone else's PR merged first. Now land yours.</text>
 <text class="sub" x="${PAD.l - 36}" y="55">Agent tokens on the recovery path — rebase, resolve, force-push — measured by running both systems</text>
@@ -91,6 +95,17 @@ function svg(theme) {
 <text class="val" x="${ax + barW / 2}" y="${y(r.avcs) - 8}" text-anchor="middle" fill="${c.ink}">${fmt(r.avcs)}</text>
 <text class="axis" x="${cx}" y="${PAD.t + plotH + 22}" text-anchor="middle">${esc(r.label)} file</text>
 `;
+    // Only the widest file is annotated: it is where the gap is worth pointing at, and one
+    // arrow reads as a statement where three read as decoration. The label, the arrow and
+    // the bar share one vertical axis, so the number is unambiguously about that bar.
+    if (i === rows.length - 1) {
+      const ex = ax + barW / 2;
+      const ey = y(r.avcs) - 34;          // stops above the value label rather than covering it
+      s += `<line x1="${ex}" y1="${y(r.git) + 4}" x2="${ex}" y2="${ey}" stroke="${c.avcs}" stroke-width="5"/>
+<path d="M${ex - 9} ${ey} L${ex} ${ey + 15} L${ex + 9} ${ey} Z" fill="${c.avcs}"/>
+<text class="drop" x="${ex}" y="${y(r.git) - 30}" text-anchor="middle">−${r.saved}%</text>
+`;
+    }
   });
 
   const last = rows[rows.length - 1];
