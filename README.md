@@ -3,7 +3,8 @@
 A small, **runnable** demo of [AVCS](https://github.com/izagood/avcs) (`@izagood/avcs`),
 the AI-native version control system. It answers one question, end to end, on your machine:
 
-> **What happens when two agents edit the same file at the same time?**
+> **What happens when two agents edit the same file at the same time —
+> and what does each answer cost you in tokens?**
 
 In git, the second writer meets `! [rejected] — fetch first`, then a rebase, and — if the
 edits touch the same lines — `<<<<<<<` markers dumped into the file. In AVCS the second
@@ -56,6 +57,58 @@ API the MCP tool `avcs.decision.record` uses), bob's land goes through, and `avc
 
 Run it twice: the sandbox is rebuilt from scratch each time, so the outcome is reproducible.
 
+## What it costs an agent in tokens
+
+The table above is about correctness. This one is about the bill. When an agent's push
+races with someone else's, git makes it **recover**: read the rejection, rebase, and — if
+the edits collided — pull the entire conflicted file into context and write the entire file
+back. AVCS either absorbs the race or hands back an object describing it.
+
+`node tools/token-cost.mjs` measures this by **running both systems for real** and counting
+the bytes each forces the agent to read and write, plus the round trips it takes. Measured
+on this machine, at 4 bytes/token:
+
+| file under contention | scenario | git | AVCS | saved | git trips | AVCS trips |
+|---|---|---:|---:|---:|---:|---:|
+| 0.7 KB | disjoint edits | 149 tok | 20 tok | **87%** | 3 | 1 |
+| 8 KB | disjoint edits | 149 tok | 20 tok | **87%** | 3 | 1 |
+| 30 KB | disjoint edits | 149 tok | 20 tok | **87%** | 3 | 1 |
+| 0.7 KB | same-line collision | 581 tok | 260 tok | **55%** | 6 | 4 |
+| 8 KB | same-line collision | 5,384 tok | 260 tok | **95%** | 6 | 4 |
+| 30 KB | same-line collision | 19,057 tok | 260 tok | **99%** | 6 | 4 |
+
+**The shape matters more than any single number.** git's recovery cost grows with the size
+of the *file*, because a conflict is bytes inside it — the agent reads 30 KB and writes 30 KB
+to change one line. AVCS's cost is flat at 260 tokens across every file size, because the
+conflict is an object naming the two contending operations. Put a real 30 KB module under
+two agents and git charges you ~73× more tokens for the same landing.
+
+**Round trips are the larger bill.** Every extra turn re-sends the live conversation, so a
+turn costs roughly the context size, not the size of the output that caused it. At 40 KB of
+context, git's 3 trips vs AVCS's 1 in the common disjoint case is **30,869 vs 10,260 tokens
+— 67% saved on the case that happens most often.** Run
+`node tools/token-cost.mjs --context-kb 120` to price it against your own context budget.
+
+<details>
+<summary>What is and isn't counted</summary>
+
+Counted, identically for both: command output the agent must read, file bytes it must read
+to resolve, file bytes it must write back, and round trips. Not counted for either:
+authoring the change (same in both worlds), running tests (same in both worlds), and the
+agent's own reasoning tokens (not observable from outside — they favor AVCS, since a
+conflict packet is a smaller thing to think about than a marked-up file).
+
+The same-line row is **not the same act** in both systems: in git the agent resolves the
+collision alone; in AVCS it may not — it surfaces the options and a human signs the
+decision. The tokens a wrong silent git resolution costs later are not counted here either.
+The human's `decide` command is excluded from AVCS's total, because counting a human
+keystroke as an agent token would flatter AVCS.
+
+The harness refuses to report a number unless both systems actually reached a landed state
+with the change intact — a refused command is cheap too, and measuring failure as
+efficiency is the easiest way to get a flattering graph.
+</details>
+
 ## The same workflow, driven by an AI agent
 
 `demo.sh` plays both humans. The intended driver of AVCS is an **agent over MCP** — 36 tools
@@ -80,6 +133,7 @@ Act 3 looks like when an *agent* hits it — including why the agent cannot reso
 | `src/todo.js`, `src/format.js` | The example project: a tiny working todo module |
 | `test/todo.test.js` | Its tests (`npm test`) — the kind of evidence AVCS gates merges on |
 | `tools/resolve-conflict.mjs` | Records a signed human decision via the `@izagood/avcs` library API |
+| `tools/token-cost.mjs` | Runs both git and AVCS for real and measures the agent tokens each costs |
 | `agent-session.md` | The same workflow as an MCP agent session transcript |
 | `sandbox/` | Created by `demo.sh`, git-ignored, safe to delete |
 
